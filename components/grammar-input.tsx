@@ -21,7 +21,10 @@ export default function GrammarInput({ onAnalyze, loading }: GrammarInputProps) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (grammar.trim() && inputString.trim()) {
-      onAnalyze(grammar, inputString)
+      // Reemplazo global de '' (dos comillas simples) por el símbolo ε
+      // Esto asegura que el backend reciba "ε" tal como lo definiste en Python.
+      const grammarForBackend = grammar.replace(/''/g, "ε")
+      onAnalyze(grammarForBackend, inputString)
     }
   }
 
@@ -44,12 +47,13 @@ export default function GrammarInput({ onAnalyze, loading }: GrammarInputProps) 
             id="grammar"
             value={grammar}
             onChange={(e) => setGrammar(e.target.value)}
-            placeholder="S -> C C&#10;C -> c C&#10;C -> d"
+            placeholder="S -> C C&#10;C -> c C&#10;C -> d&#10;Usa '' para ε (se enviará como ε)"
+            aria-label="Definición de la gramática; use dos comillas simples '' para indicar epsilon"
             className="font-mono text-sm h-32 resize-none bg-input/50 border-primary/20 focus:border-primary focus:ring-primary/30 transition-colors"
             disabled={loading}
           />
           <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-            <span className="text-primary">→</span> Usa saltos de línea para separar producciones
+            <span className="text-primary">→</span> Usa saltos de línea para separar producciones. Usa <code>''</code> para ε; se convertirá a <code>ε</code> al enviarlo.
           </p>
         </div>
 
